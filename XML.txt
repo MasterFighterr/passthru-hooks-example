@@ -1,0 +1,91 @@
+REPLACE <domain> WITH THIS
+
+<domain xmlns:qemu="http://libvirt.org/schemas/domain/qemu/1.0" type="kvm">
+
+RUN THIS IN THE SAME DIRECTORY name-files FOLDER IS IN
+
+sudo cp -r name-files/ /etc/libvirt/hooks/qemu.d/name
+
+PUT THIS BELOW <sound>
+
+<audio id="1" type="jack">
+<input clientName="name" connectPorts="input-name"/>
+<output clientName="name" connectPorts="output-name"/>
+</audio>
+
+HOW <qemu:commandline> SHOULD LOOK, DONT ADD LAST PART UNTIL EVERYTHING ELSE IS FINISHED
+
+<qemu:commandline>
+<qemu:env name="PIPEWIRE_RUNTIME_DIR" value="/run/user/1000"/>
+<qemu:env name="PIPEWIRE_LATENCY" value="512/48000"/>
+<qemu:arg value='-overcommit'/>
+<qemu:arg value='cpu-pm=on'/>
+</qemu:commandline>
+
+ADD BELOW <current memory> LINE
+  <memoryBacking>
+  <hugepages/>
+</memoryBacking>
+
+ADD TO <hyperv> SECTION
+
+<vpindex state="on"/>
+<synic state="on"/>
+<stimer state="on"/>
+<reset state="on"/>
+<frequencies state="on"/>
+<vendor_id state="on" value="randomid"/>
+
+THIS GOES BELOW <vcpu> LINE
+ 
+   <iothreads>1</iothreads>
+   <cputune>
+   <vcpupin vcpu="0" cpuset="12"/>
+   <vcpupin vcpu="1" cpuset="13"/>
+   <vcpupin vcpu="2" cpuset="14"/>
+   <vcpupin vcpu="3" cpuset="15"/>
+   <vcpupin vcpu="4" cpuset="16"/>
+   <vcpupin vcpu="5" cpuset="17"/>
+   <vcpupin vcpu="6" cpuset="18"/>
+   <vcpupin vcpu="7" cpuset="19"/>
+   <vcpupin vcpu="4" cpuset="20"/>
+   <vcpupin vcpu="5" cpuset="21"/>
+   <vcpupin vcpu="6" cpuset="22"/>
+   <vcpupin vcpu="7" cpuset="23"/>sudo cp -r name-files/ /etc/libvirt/hooks/qemu.d/name
+   <emulatorpin cpuset="0-11"/>
+   <iothreadpin iothread="1" cpuset="0-11"/>
+   </cputune>
+
+THIS GOES BELOW <cpu mode="host-passthrough" check="none" migratable="on"> LINE
+
+<cache mode="passthrough"/>
+<feature policy="require" name="topoext"/>
+
+THIS GOES IN looking-glass-host.ini IN WINDOWS (O N L Y  N V I D I A!!!)
+
+[app]
+capture=NVFBC
+
+RUN THIS AFTER EXTRACTING IddSampleDriver TO THE C:\ DIRECTORY!
+
+.\certmgr.exe /add IddSampleDriver.cer /s /r localMachine root
+
+ADD THIS A F T E R LOOKING GLASS AND GPU DRIVERS ARE WORKING!!!
+
+THIS GOES IN .bashrc
+
+alias spice='looking-glass-client -F -f /dev/kvmfr0'
+
+THIS GOES IN /etc/modprobe.d/kvmfr.conf
+
+#KVMFR Looking Glass Module
+options kvmfr static_size_mb=128
+
+THIS GOES IN /etc/udev/rules.d/99-kvmfr.rules
+
+SUBSYSTEM=="kvmfr", OWNER="<YOURUSERNAME>", GROUP="kvm", MODE="0660"
+
+<qemu:arg value='-device'/>
+  <qemu:arg value='ivshmem-plain,id=shmem0,memdev=looking-glass'/>
+  <qemu:arg value='-object'/>
+  <qemu:arg value='memory-backend-file,id=looking-glass,mem-path=/dev/kvmfr0,size=128M,share=yes'/>
