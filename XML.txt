@@ -89,3 +89,21 @@ SUBSYSTEM=="kvmfr", OWNER="<YOURUSERNAME>", GROUP="kvm", MODE="0660"
   <qemu:arg value='ivshmem-plain,id=shmem0,memdev=looking-glass'/>
   <qemu:arg value='-object'/>
   <qemu:arg value='memory-backend-file,id=looking-glass,mem-path=/dev/kvmfr0,size=128M,share=yes'/>
+
+DON'T FORGET TO ADD THIS TO YOUR /etc/libvirt/qemu.conf!
+
+find this section and uncomment it:
+#cgroup_device_acl = [
+#    "/dev/null", "/dev/full", "/dev/zero",
+#    "/dev/random", "/dev/urandom",
+#    "/dev/ptmx", "/dev/kvm"
+#]
+
+Add "/dev/kvmfr0" at the end of it, it should look like this
+
+cgroup_device_acl = [
+    "/dev/null", "/dev/full", "/dev/zero",
+    "/dev/random", "/dev/urandom",
+    "/dev/ptmx", "/dev/kvm", "/dev/kvmfr0"
+]
+
